@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+
+    <div class="main-container">
+
+        <div class="card">
+            <h2>Expense Management</h2>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+                <button class="btn" onclick="openAddExpenseModal()">Add Expense</button>
+                <button class="btn" onclick="openUpdateExpenseModal()">Update Expense</button>
+                <button class="btn" onclick="openDeleteExpenseModal()">Delete Expense</button>
+            </div>
+        </div>
+
+        <!-- Graph -->
+        <div class="card1">
+            <h2>Expenses Graph</h2>
+            <canvas id="expenseChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- Expense List -->
+    <div class="main-container">
+        <div class="card all-tasks">
+            <h2>Expense List</h2>
+
+            <table>
+                <tr>
+                    <th>Amount</th>
+                    <th>Reason</th>
+                    <th>Time</th>
+                </tr>
+
+                {% for expense in expenses %}
+                <tr>
+                    <td>₹ {{ expense.amount }}</td>
+                    <td>{{ expense.reason }}</td>
+                    <td>{{ expense.date}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="addExpenseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddExpenseModal()">&times;</span>
+            <h2>Add New Expense</h2>
+            <form id="addExpenseForm" method="POST">
+                {% csrf_token %}
+                <label>Amount</label>
+                <input type="number" id="addExpenseAmount" name="amount" required>
+                <label>Reason</label>
+                <input type="text" id="addExpenseReason" name="reason" required>
+                <button class="btn" type="button" onclick="submitAddExpense()" style="width:100%;margin-top:10px;">Add Expense</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="updateExpenseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUpdateExpenseModal()">&times;</span>
+            <h2>Update Expense</h2>
+            <div id="updateExpenseListSection">
+                <p>Select an expense to edit:</p>
+                <div style="max-height:300px;overflow-y:auto;">
+                    {% for expense in expenses_all %}
+                    <div style="padding:10px;border-bottom:1px solid #444;cursor:pointer;" onclick="openUpdateExpenseForm('{{ expense.id }}','{{ expense.amount }}','{{ expense.reason }}')">
+                        ₹ {{ expense.amount }} - {{ expense.reason }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div id="updateExpenseFormSection" style="display:none;margin-top:20px;">
+                <input type="hidden" id="updateExpenseId">
+                <label>Amount</label>
+                <input type="number" id="updateExpenseAmount" required>
+                <label>Reason</label>
+                <input type="text" id="updateExpenseReason" required>
+                <button class="btn" type="button" onclick="submitUpdateExpense()" style="width:100%;margin-top:10px;">Update</button>
+                <button class="btn" type="button" onclick="document.getElementById('updateExpenseFormSection').style.display='none';document.getElementById('updateExpenseListSection').style.display='block';" style="width:100%;margin-top:10px;background-color:#666;">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteExpenseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDeleteExpenseModal()">&times;</span>
+            <h2>Delete Expense</h2>
+            <p>Select an expense to remove:</p>
+            <div style="max-height:300px;overflow-y:auto;">
+                {% for expense in expenses_all %}
+                <div style="padding:10px;border-bottom:1px solid #444;display:flex;justify-content:space-between;align-items:center;">
+                    <span>₹ {{ expense.amount }} - {{ expense.reason }}</span>
+                    <button class="btn" type="button" onclick="deleteExpense('{{ expense.id }}')" style="background-color:#dc2626;">Delete</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart Script MUST be inside block -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const dates = JSON.parse('{{ dates|escapejs }}');
+    const totals = JSON.parse('{{ totals|escapejs }}');
+
+    const ctx = document.getElementById('expenseChart');
+
+    const expenseChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Total Expense',
+                data: totals,
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.2)',
+                tension: 0.4,
+                fill: true
+            }]
+        }
+    });
+</script>
+
+<script>
+// modal functions
+function openAddExpenseModal(){document.getElementById('addExpenseModal').style.display='flex';}
+function closeAddExpenseModal(){document.getElementById('addExpenseModal').style.display='none';}
+function openUpdateExpenseModal(){document.getElementById('updateExpenseModal').style.display='flex';}
+function closeUpdateExpenseModal(){document.getElementById('updateExpenseModal').style.display='none';}
+function openDeleteExpenseModal(){document.getElementById('deleteExpenseModal').style.display='flex';}
+function closeDeleteExpenseModal(){document.getElementById('deleteExpenseModal').style.display='none';}
+
+function submitAddExpense(){
+    const amt=document.getElementById('addExpenseAmount').value;
+    const reason=document.getElementById('addExpenseReason').value.trim();
+    if(!amt||!reason){alert('fill all fields');return;} 
+    document.getElementById('addExpenseForm').submit();
+}
+
+function openUpdateExpenseForm(id,amt,reason){
+    document.getElementById('updateExpenseId').value=id;
+    document.getElementById('updateExpenseAmount').value=amt;
+    document.getElementById('updateExpenseReason').value=reason;
+    document.getElementById('updateExpenseFormSection').style.display='block';
+    document.getElementById('updateExpenseListSection').style.display='none';
+}
+
+function submitUpdateExpense(){
+    const id=document.getElementById('updateExpenseId').value;
+    const amt=document.getElementById('updateExpenseAmount').value;
+    const reason=document.getElementById('updateExpenseReason').value.trim();
+    if(!amt||!reason){alert('fill all fields');return;}
+    const csrftoken=document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const fd=new FormData();
+    fd.append('new_amount',amt);
+    fd.append('new_reason',reason);
+    fd.append('csrfmiddlewaretoken',csrftoken);
+    fetch(`/update-expense/${id}/`,{method:'POST',body:fd,headers:{'X-CSRFToken':csrftoken}})
+    .then(r=>{if(r.ok)window.location.reload();}).catch(e=>console.error(e));
+}
+
+function deleteExpense(id){if(confirm('Delete this expense?'))window.location.href=`/delete-expense/${id}/`;}
+
+window.onclick=function(ev){['addExpenseModal','updateExpenseModal','deleteExpenseModal'].forEach(mid=>{const m=document.getElementById(mid);if(ev.target===m)m.style.display='none';});}
+</script>
+
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #1f2937;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: #fffbfb;
+    position: relative;
+}
+
+.close {
+    color: #fffbfb;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+}
+
+.close:hover,
+.close:focus {
+    color: #00d4ff;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: #00d4ff;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 8px;
+    color: #fffbfb;
+}
+
+.modal-content input[type="number"],
+.modal-content input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background-color: #374151;
+    color: #fffbfb;
+    box-sizing: border-box;
+}
+
+.modal-content input:focus {
+    outline: none;
+    border-color: #00d4ff;
+}
+
+.modal-content .btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #00d4ff;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.modal-content .btn:hover {
+    background-color: #00a8cc;
+}
+</style>
+
+{% endblock %}

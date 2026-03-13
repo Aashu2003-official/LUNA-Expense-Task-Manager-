@@ -1,0 +1,338 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+{% csrf_token %}
+<div class="main-container">
+
+<div class="card">
+    <h2>Task Management</h2>
+    <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+        <button class="btn" onclick="openAddTaskModal()">Add Task</button>
+        <button class="btn" onclick="openUpdateTaskModal()">Update Task</button>
+        <button class="btn" onclick="openDeleteTaskModal()">Delete Task</button>
+    </div>
+</div>
+<div class="card1">
+    <h2>Pending Tasks</h2>
+
+    <table>
+        <tr>
+            <th>Task</th>
+            <th>Deadline</th>
+            <th>Action</th>
+        </tr>
+        {% for task in tasks_pending %}
+        <tr>
+            <td>{{ task.title }}</td>
+            <td>{{ task.deadline }}</td>
+            <td>
+                <form method="POST" action="{% url 'complete_taskmanager' task.id %}">
+                    {% csrf_token %}
+                    <button class="btn" type="submit">Mark as Completed</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+</div>  
+<div class="main-container">
+<div class="card all-tasks">
+    <h2>Tasks Completed</h2>
+
+    <table>
+        <tr>
+            <th>Task</th>
+            <th>Priority</th>
+            <th>Created At</th>
+            <th>Deadline</th>
+            <th>Completed At</th>
+        </tr>
+        <!-- Django Loop -->
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.title }}</td>
+            <td>{{ task.priority }}</td>
+            <td>{{ task.created_at }}</td>
+            <td>{{ task.deadline }}</td>
+            <td>{{ task.completed_at }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+</div>
+</div>
+
+<!-- Modals -->
+<div id="addTaskModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeAddTaskModal()">&times;</span>
+        <h2>Add New Task</h2>
+        <form id="addTaskForm" method="POST">
+            {% csrf_token %}
+            <label>Task Name</label>
+            <input type="text" id="addTaskInput" name="task_name" placeholder="Enter task name">
+            
+            <label style="margin-top: 15px;">Priority</label>
+            <select id="addPriorityInput" name="priority" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #444; border-radius: 4px; background-color: #374151; color: #fffbfb;">
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+            </select>
+            
+            <label>Deadline</label>
+            <input type="date" id="addDeadlineInput" name="deadline" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #444; border-radius: 4px; background-color: #374151; color: #fffbfb;">
+            
+            <button class="btn" type="button" onclick="submitAddTask()" style="width: 100%; padding: 10px;">Add Task</button>
+        </form>
+    </div>
+</div>
+
+<div id="updateTaskModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeUpdateTaskModal()">&times;</span>
+        <h2>Update Task</h2>
+        <div id="updateTaskListSection">
+            <p>Select a task to update:</p>
+            <div style="max-height: 300px; overflow-y: auto;">
+                {% for task in tasks_pending %}
+                <div style="padding: 10px; border-bottom: 1px solid #444; cursor: pointer;" onclick="openUpdateForm('{{ task.id }}', '{{ task.title }}', '{{ task.priority }}', '{{ task.deadline }}')">
+                    {{ task.title }} ({{ task.priority }})
+                </div>
+                {% empty %}
+                <p>No tasks available</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div id="updateFormSection" style="display: none; margin-top: 20px;">
+            <input type="hidden" id="updateTaskId">
+            <label>Task Name:</label>
+            <input type="text" id="updateTaskInput" placeholder="Enter task name">
+            
+            <label style="margin-top: 15px;">Priority:</label>
+            <select id="updatePriorityInput" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #444; border-radius: 4px; background-color: #374151; color: #fffbfb;">
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+            </select>
+            
+            <label>Deadline:</label>
+            <input type="date" id="updateDeadlineInput" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #444; border-radius: 4px; background-color: #374151; color: #fffbfb;">
+            
+            <button class="btn" type="button" onclick="submitUpdateTask()" style="width: 100%; padding: 10px; margin-top: 10px;">Update</button>
+            <button class="btn" type="button" onclick="document.getElementById('updateFormSection').style.display = 'none'; document.getElementById('updateTaskListSection').style.display = 'block';" style="width: 100%; padding: 10px; margin-top: 10px; background-color: #666;">Back</button>
+        </div>
+    </div>
+</div>
+
+<div id="deleteTaskModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeDeleteTaskModal()">&times;</span>
+        <h2>Delete Task</h2>
+        <p>Select a task to delete:</p>
+        <div style="max-height: 300px; overflow-y: auto;">
+            {% for task in tasks_all %}
+            <div style="padding: 10px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
+                <span>{{ task.title }} ({{ task.priority }}){% if task.completed_at %} - completed{% endif %}</span>
+                <button class="btn" type="button" onclick="deleteTask('{{ task.id }}')" style="background-color: #dc2626;">Delete</button>
+            </div>
+            {% empty %}
+            <p>No tasks available</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #1f2937;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: #fffbfb;
+    position: relative;
+}
+
+.close {
+    color: #fffbfb;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+}
+
+.close:hover,
+.close:focus {
+    color: #00d4ff;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: #00d4ff;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 8px;
+    color: #fffbfb;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="date"],
+.modal-content select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background-color: #374151;
+    color: #fffbfb;
+    box-sizing: border-box;
+}
+
+.modal-content input[type="text"]:focus,
+.modal-content input[type="date"]:focus,
+.modal-content select:focus {
+    outline: none;
+    border-color: #00d4ff;
+}
+
+.modal-content .btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #00d4ff;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.modal-content .btn:hover {
+    background-color: #00a8cc;
+}
+</style>
+
+<script>
+function openAddTaskModal() {
+    document.getElementById('addTaskModal').style.display = 'flex';
+}
+
+function closeAddTaskModal() {
+    document.getElementById('addTaskModal').style.display = 'none';
+}
+
+function openUpdateTaskModal() {
+    document.getElementById('updateTaskModal').style.display = 'flex';
+}
+
+function closeUpdateTaskModal() {
+    document.getElementById('updateTaskModal').style.display = 'none';
+}
+
+function openDeleteTaskModal() {
+    document.getElementById('deleteTaskModal').style.display = 'flex';
+}
+
+function closeDeleteTaskModal() {
+    document.getElementById('deleteTaskModal').style.display = 'none';
+}
+
+function submitAddTask() {
+    const taskName = document.getElementById('addTaskInput').value.trim();
+    if (taskName === '') {
+        alert('Please enter a task name');
+        return;
+    }
+    document.getElementById('addTaskForm').submit();
+}
+
+function openUpdateForm(taskId, taskTitle, taskPriority, taskDeadline) {
+    document.getElementById('updateTaskId').value = String(taskId);
+    document.getElementById('updateTaskInput').value = String(taskTitle);
+    document.getElementById('updatePriorityInput').value = String(taskPriority);
+    document.getElementById('updateDeadlineInput').value = String(taskDeadline);
+    document.getElementById('updateFormSection').style.display = 'block';
+    document.getElementById('updateTaskListSection').style.display = 'none';
+}
+
+function submitUpdateTask() {
+    const taskId = document.getElementById('updateTaskId').value;
+    const newTitle = document.getElementById('updateTaskInput').value.trim();
+    const newPriority = document.getElementById('updatePriorityInput').value;
+    const newDeadline = document.getElementById('updateDeadlineInput').value;
+    
+    if (newTitle === '') {
+        alert('Please enter a task name');
+        return;
+    }
+    
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const formData = new FormData();
+    formData.append('new_title', newTitle);
+    formData.append('new_priority', newPriority);
+    formData.append('new_deadline', newDeadline);
+    formData.append('csrfmiddlewaretoken', csrftoken);
+    
+    fetch(`/update-taskmanager/${taskId}/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function deleteTask(taskId) {
+    if (confirm('Are you sure you want to delete this task?')) {
+        window.location.href = `/delete-taskmanager/${taskId}/`;
+    }
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const addModal = document.getElementById('addTaskModal');
+    const updateModal = document.getElementById('updateTaskModal');
+    const deleteModal = document.getElementById('deleteTaskModal');
+    
+    if (event.target === addModal) {
+        addModal.style.display = 'none';
+    }
+    if (event.target === updateModal) {
+        updateModal.style.display = 'none';
+    }
+    if (event.target === deleteModal) {
+        deleteModal.style.display = 'none';
+    }
+}
+</script>
+
+{% endblock %}
