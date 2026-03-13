@@ -1,5 +1,6 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from .models import TaskManager, DailyTask, ExpenseTracker, DailyTaskLog
 from django.db.models import Sum
@@ -8,6 +9,7 @@ import json
 from django.utils import timezone
 from datetime import timedelta
 
+@login_required
 def home(request):
     today = timezone.now().date()
     
@@ -72,6 +74,7 @@ def signup(request):
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
+@login_required
 def dailytask(request):
     today = timezone.now().date()
 
@@ -141,6 +144,7 @@ def dailytask(request):
     })
 
 
+@login_required
 def complete_task(request, task_id):
     today = timezone.now().date()
     print(f"Completing task {task_id} for date {today}")
@@ -155,6 +159,7 @@ def complete_task(request, task_id):
 
     return redirect('dailytask')
 
+@login_required
 def update_daily_task(request, task_id):
     if request.method == 'POST':
         new_title = request.POST.get('new_title')
@@ -167,10 +172,12 @@ def update_daily_task(request, task_id):
     task = DailyTask.objects.get(id=task_id)
     return render(request, 'daily_task.html', {'edit_task': task})
 
+@login_required
 def delete_daily_task(request, task_id):
     DailyTask.objects.filter(id=task_id).delete()
     return redirect('dailytask')
 
+@login_required
 def expensetracker(request):
 
     if request.method == 'POST' and 'amount' in request.POST:
@@ -203,6 +210,7 @@ def expensetracker(request):
         'totals': totals
     })
 
+@login_required
 def update_expense(request, expense_id):
     if request.method == 'POST':
         new_amount = request.POST.get('new_amount')
@@ -216,9 +224,11 @@ def update_expense(request, expense_id):
     exp = ExpenseTracker.objects.get(id=expense_id)
     return render(request, 'expense_tracker.html', {'edit_expense': exp})
 
+@login_required
 def delete_expense(request, expense_id):
     ExpenseTracker.objects.filter(id=expense_id).delete()
     return redirect('expensetracker')
+@login_required
 def taskmanager(request):
     if request.method == 'POST' and 'task_name' in request.POST:
         task_name = request.POST.get('task_name')
@@ -243,6 +253,7 @@ def taskmanager(request):
         'tasks_pending': tasks_pending,
         'tasks_all': tasks_all,
     })
+@login_required
 def complete_taskmanager(request, task_id):
     task = TaskManager.objects.get(id=task_id)
     task.completed_at = timezone.now()
@@ -250,6 +261,7 @@ def complete_taskmanager(request, task_id):
 
     return redirect('taskmanager')
 
+@login_required
 def update_taskmanager(request, task_id):
     if request.method == 'POST':
         new_title = request.POST.get('new_title')
@@ -267,6 +279,7 @@ def update_taskmanager(request, task_id):
     task = TaskManager.objects.get(id=task_id)
     return render(request, 'task_manager.html', {'edit_task': task})
 
+@login_required
 def delete_taskmanager(request, task_id):
     TaskManager.objects.filter(id=task_id).delete()
     return redirect('taskmanager')
