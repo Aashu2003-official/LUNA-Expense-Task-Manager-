@@ -165,16 +165,6 @@ python manage.py runserver
 
 ---
 
-## 🚀 Future Improvements
-
-* Mobile app version
-* Notifications & reminders
-* Advanced filtering & sorting
-* Budget goals and alerts
-* API integration
-
----
-
 ## 👨‍💻 Author
 
 **Aashutosh**
