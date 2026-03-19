@@ -1,110 +1,155 @@
-LUNA Assistant
-live project: https://luna-expense-task-manager.onrender.com
+# 🚀 LUNA – Expense & Task Manager
 
-🚀 LUNA – Expense & Task Manager
-📌 Project Overview
-LUNA is a full-stack web application built using Django that helps users manage daily tasks and track expenses in one place. It provides task tracking, performance visualization, and expense analytics through an intuitive dashboard.
+🌐 **Live Demo:** https://luna-expense-task-manager.onrender.com
 
-✨ Features
-✅ Task Management
---Add, update, and delete tasks
---Set deadlines for tasks
---Mark tasks as completed
---View pending and completed tasks
+---
 
-📅 Daily Task Tracking
+## 📌 Overview
 
---Separate section for “Today’s Tasks”
---Quick completion buttons
---Helps maintain daily productivity
+**LUNA** is a full-stack web application built with **Django** that combines **task management** and **expense tracking** into a single, intuitive platform.
 
-📊 Task Performance Visualization
+It is designed to help users stay productive, monitor daily progress, and gain insights into their spending habits through a **clean dashboard and visual analytics**.
 
-Graph showing:
+---
 
---Completed tasks vs total tasks
---Performance tracking using visual indicators (boxes per day)
+## ✨ Key Features
 
-📈 Task Completion Analytics
+### ✅ Task Management
 
---Time-based graph of task completion
---Helps analyze consistency over time
+* Create, update, and delete tasks
+* Set deadlines and manage priorities
+* Mark tasks as completed
+* Separate views for pending and completed tasks
 
-💰 Expense Tracker
+---
 
---Add, update, delete expenses
---Categorize expenses (e.g., food, snacks)
---Track spending over time
+### 📅 Daily Task Tracking
 
-📉 Expense Analytics
+* Dedicated **“Today’s Tasks”** section
+* Quick action buttons for fast updates
+* Helps maintain consistency and daily productivity
 
---Graph visualization of expenses by date
---Helps understand spending patterns
+---
 
-🔐 Authentication System
+### 📊 Performance Visualization
 
---User signup and login
---Secure logout functionality
---Personalized dashboard for each user
+* Visual representation of task performance
+* Daily progress tracking using **interactive box indicators**
+* Clear view of completed vs pending tasks
 
-🖥️ UI/UX Highlights
+---
 
---Dark theme modern UI
---Clean card-based layout
---Responsive design
---Interactive buttons for actions
---Visual performance indicators (daily boxes)
+### 📈 Task Analytics
 
-🛠️ Tech Stack
-Backend:
+* Time-based performance graphs
+* Identify productivity trends and consistency
+* Data-driven insights for better planning
 
---Django (Python)
---PostgreSQL (default DB)
+---
 
-Frontend:
+### 💰 Expense Tracker
 
---HTML
---CSS
---JavaScript
+* Add, edit, and delete expenses
+* Categorize spending (e.g., food, travel, etc.)
+* Organized tracking for better financial control
 
-Visualization:
+---
 
---Chart.js (for graphs)
+### 📉 Expense Analytics
 
-Deployment:
+* Graphical visualization of expenses over time
+* Understand spending patterns easily
+* Improve budgeting decisions
 
---Render (Cloud Hosting)
+---
 
-🌐 Live Demo
+### 🔐 Authentication System
+
+* Secure user registration and login
+* Session-based authentication
+* Personalized dashboards for each user
+
+---
+
+## 🖥️ UI/UX Highlights
+
+* 🌙 Modern **dark theme interface**
+* 📦 Clean **card-based layout**
+* 📱 Fully responsive design
+* ⚡ Interactive and user-friendly actions
+* 📊 Visual indicators for performance tracking
+
+---
+
+## 🛠️ Tech Stack
+
+### 🔹 Backend
+
+* Django (Python)
+* PostgreSQL
+
+### 🔹 Frontend
+
+* HTML
+* CSS
+* JavaScript
+
+### 🔹 Visualization
+
+* Chart.js
+
+### 🔹 Deployment
+
+* Render (Cloud Hosting)
+
+---
+
+## 📂 Project Modules
+
+* Task Manager
+* Daily Task Tracker
+* Expense Tracker
+* Performance Dashboard
+* Authentication System
+
+---
+
+## ⚙️ Installation & Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/luna-project.git
+
+# Navigate into project
+cd luna-project
+
+# Create virtual environment
+python -m venv env
+
+# Activate environment
+env\Scripts\activate      # Windows
+source env/bin/activate   # Mac/Linux
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Apply migrations
+python manage.py migrate
+
+# Run the server
+python manage.py runserver
+```
+
+---
+
+## 🌐 Live Demo
 
 👉 https://luna-expense-task-manager.onrender.com
 
-📂 Key Modules
+---
 
---Task Manager
---Daily Task Tracker
---Expense Tracker
---Performance Dashboard
---Authentication System
+## 📸 Screenshots
 
-⚙️ Installation & Setup
-# Clone the repository
-git clone https://github.com/your-username/luna-project.git
-# Navigate into project
-cd luna-project
-# Create virtual environment
-python -m venv env
-# Activate environment
-env\Scripts\activate   # Windows
-source env/bin/activate # Mac/Linux
-# Install dependencies
-pip install -r requirements.txt
-# Run migrations
-python manage.py migrate
-# Run server
-python manage.py runserver
-
-SCREENSHOTS OF LIVE PROJECT:
 <img width="1920" height="1080" alt="Screenshot 2026-03-18 113159" src="https://github.com/user-attachments/assets/46c81ed8-2c09-4e5b-be1c-3ada0ba38e93" />
 <img width="1920" height="1080" alt="Screenshot 2026-03-18 113217" src="https://github.com/user-attachments/assets/cc22163e-9405-4a49-b836-ec966f43ada6" />
 <img width="1920" height="1080" alt="Screenshot 2026-03-18 113243" src="https://github.com/user-attachments/assets/db521167-ef02-4081-8c2a-911a6733d63b" />
@@ -118,3 +163,24 @@ SCREENSHOTS OF LIVE PROJECT:
 <img width="1920" height="1080" alt="Screenshot 2026-03-18 113439" src="https://github.com/user-attachments/assets/d46e02cd-2dab-4236-9685-3e199a709369" />
 <img width="1920" height="1080" alt="Screenshot 2026-03-18 113452" src="https://github.com/user-attachments/assets/2ac18c5f-1152-4ec9-a786-f4a162587b0b" />
 
+---
+
+## 🚀 Future Improvements
+
+* Mobile app version
+* Notifications & reminders
+* Advanced filtering & sorting
+* Budget goals and alerts
+* API integration
+
+---
+
+## 👨‍💻 Author
+
+**Aashutosh**
+
+---
+
+## ⭐ Support
+
+If you like this project, consider giving it a **star ⭐ on GitHub**!
